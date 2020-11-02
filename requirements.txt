@@ -5,3 +5,4 @@ matplotlib
 argparse
 Pillow
 ipython
+opencv-python<4.3

@@ -1,11 +1,15 @@
 
 import argparse
 import matplotlib.pyplot as plt
+import cv2
+import os
+import sys
 
 from colorizers import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-i','--img_path', type=str, default='imgs/ansel_adams3.jpg')
+parser.add_argument('-vid', '--vid_path', type=str, default='vids/LightBoxVid.mov');
 parser.add_argument('--use_gpu', action='store_true', help='whether to use GPU')
 parser.add_argument('-o','--save_prefix', type=str, default='saved', help='will save into this file with {eccv16.png, siggraph17.png} suffixes')
 opt = parser.parse_args()
@@ -29,6 +33,14 @@ if(opt.use_gpu):
 img_bw = postprocess_tens(tens_l_orig, torch.cat((0*tens_l_orig,0*tens_l_orig),dim=1))
 out_img_eccv16 = postprocess_tens(tens_l_orig, colorizer_eccv16(tens_l_rs).cpu())
 out_img_siggraph17 = postprocess_tens(tens_l_orig, colorizer_siggraph17(tens_l_rs).cpu())
+
+
+
+# Read in a video from files
+input_video = sys.argv[2]
+print(input_video)
+vid_read = cv2.VideoCapture("{}".format(input_video))
+
 
 plt.imsave('%s_eccv16.png'%opt.save_prefix, out_img_eccv16)
 plt.imsave('%s_siggraph17.png'%opt.save_prefix, out_img_siggraph17)
