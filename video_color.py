@@ -38,8 +38,35 @@ out_img_siggraph17 = postprocess_tens(tens_l_orig, colorizer_siggraph17(tens_l_r
 
 # Read in a video from files
 input_video = sys.argv[2]
-print(input_video)
 vid_read = cv2.VideoCapture("{}".format(input_video))
+split_video_name = input_video.split(".")
+split_video_name = split_video_name[0].split("/")
+isolated_video_name = split_video_name[1]
+
+
+# Make a directory for all frames within the video
+if not os.path.exists("vid_result_{}".format(isolated_video_name)):
+	os.makedirs("vid_result_{}".format(isolated_video_name))
+
+# Initialize frame number
+frame_number = 0
+frame_list = []
+
+
+# Extract images from input video file
+while(True):
+	video_left, frame_count = vid_read.read()
+	
+	if video_left:
+		frame_name = './vid_result_{}/frame'.format(isolated_video_name) + str(frame_number) + '.jpg'
+		frame_list.append(frame_name)
+		print("Creating {}".format(frame_name))
+		frame_number += 1
+		cv2.imwrite(frame_name, frame_count)
+	else:
+		break
+
+
 
 
 plt.imsave('%s_eccv16.png'%opt.save_prefix, out_img_eccv16)
