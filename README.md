@@ -29,6 +29,9 @@ images.
   Furthermore, right now we do not have the audio with the video. This is a minor detail but it would be interesting to be able to 
 keep the audio along with the video.
 
+  Finally, another limitation we face is timing. It takes the algorithm multiple seconds to run on each extracted frame, so an 8 second video could easily take a 
+  few minutes to finish. We will work on speeding up the process if possible.
+
   We will continue to make further innovations as well, so stay tuned.
 
 
