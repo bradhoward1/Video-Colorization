@@ -77,7 +77,7 @@ while(True):
     else:
         break
 
-ml_frame = []
+ml_frame_list = []
 for idx, frame in enumerate(frame_list):
     #print(frame)
     new_frame = load_img(frame)
@@ -89,10 +89,34 @@ for idx, frame in enumerate(frame_list):
     if not os.path.exists("vid_out_result_{}".format(isolated_video_name)):
         os.makedirs("vid_out_result_{}".format(isolated_video_name))
     out_img_eccv16 = postprocess_tens(frame_l_orig, colorizer_eccv16(frame_l_rs).cpu())
-    imname = plt.imsave('%s_frame{}.png'.format(idx)%opt.save_prefix, out_img_eccv16)
+    plt.imsave('%s_frame{}.png'.format(idx)%opt.save_prefix, out_img_eccv16)
     os.rename('/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/%s_frame{}.png'.format(idx)%opt.save_prefix,
         '/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/vid_out_result_{}/%s_frame{}.png'
         .format(isolated_video_name, idx)%opt.save_prefix)
+    ml_frame_list.append('%s_frame{}.png'.format(idx)%opt.save_prefix)
+
+
+os.chdir('/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/vid_out_result_{}'.format(isolated_video_name))
+image_folder = '.'
+output_video_name = 'ml_' + isolated_video_name + '.avi'
+# output_video = cv2.VideoWriter(output_video_name, 0, 1, (255, 255))
+
+images = [img for img in os.listdir(image_folder) 
+              if img.endswith("png")]
+images.sort()
+frame = cv2.imread(os.path.join(image_folder, images[0])) 
+  
+    # setting the frame width, height width 
+    # the width, height of first image 
+height, width, layers = frame.shape
+video = cv2.VideoWriter(output_video_name, 0, 30, (width, height))
+
+for image in images:
+    print(image)
+    video.write(cv2.imread(os.path.join(image_folder, image)))
+
+cv2.destroyAllWindows()
+video.release()
 
 
 # plt.imsave('%s_eccv16.png'%opt.save_prefix, out_img_eccv16)
