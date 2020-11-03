@@ -2,5 +2,8 @@ myvenv
 .DS_Store
 saved_eccv16.png
 saved_siggraph17.png
-
-
+colorizers/__pycache__/__init__.cpython-38.pyc
+colorizers/__pycache__/base_color.cpython-38.pyc
+colorizers/__pycache__/eccv16.cpython-38.pyc
+colorizers/__pycache__/siggraph17.cpython-38.pyc
+colorizers/__pycache__/util.cpython-38.pyc
