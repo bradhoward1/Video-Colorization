@@ -6,6 +6,7 @@ import os
 import sys
 import re
 import shutil
+from natsort import natsorted
 
 from colorizers import *
 
@@ -24,6 +25,10 @@ parser.add_argument('--use_gpu', action='store_true', help='whether to use GPU')
 parser.add_argument('-o','--save_prefix', type=str, default='saved', help='will save into this file with {eccv16.png, siggraph17.png} suffixes')
 opt = parser.parse_args()
 
+
+## MAKE MODULAR
+
+# def colorizing_function()
 # load colorizers
 colorizer_eccv16 = eccv16(pretrained=True).eval()
 colorizer_siggraph17 = siggraph17(pretrained=True).eval()
@@ -31,6 +36,7 @@ if(opt.use_gpu):
     colorizer_eccv16.cuda()
     colorizer_siggraph17.cuda()
 
+# def load_preprocessed_img():
 # default size to process images is 256x256
 # grab L channel in both original ("orig") and resized ("rs") resolutions
 img = load_img(opt.img_path)
@@ -38,6 +44,8 @@ img = load_img(opt.img_path)
 if(opt.use_gpu):
     tens_l_rs = tens_l_rs.cuda()
 
+
+# def post_processed_video():
 # colorizer outputs 256x256 ab map
 # resize and concatenate to original L channel
 img_bw = postprocess_tens(tens_l_orig, torch.cat((0*tens_l_orig,0*tens_l_orig),dim=1))
@@ -46,10 +54,19 @@ out_img_eccv16 = postprocess_tens(tens_l_orig, colorizer_eccv16(tens_l_rs).cpu()
 out_img_siggraph17 = postprocess_tens(tens_l_orig, colorizer_siggraph17(tens_l_rs).cpu())
 
 
-
+# def determine_video()
 # Read in a video from files
 input_video = sys.argv[2]
 vid_read = cv2.VideoCapture("{}".format(input_video))
+(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+if int(major_ver)  < 3 :
+    fps = vid_read.get(cv2.cv.CV_CAP_PROP_FPS)
+    print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
+else :
+    fps = vid_read.get(cv2.CAP_PROP_FPS)
+    print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
+# vid_read.release()
+
 split_video_name = input_video.split(".")
 split_video_name = split_video_name[0].split("/")
 isolated_video_name = split_video_name[1]
@@ -89,29 +106,29 @@ for idx, frame in enumerate(frame_list):
     if not os.path.exists("vid_out_result_{}".format(isolated_video_name)):
         os.makedirs("vid_out_result_{}".format(isolated_video_name))
     out_img_eccv16 = postprocess_tens(frame_l_orig, colorizer_eccv16(frame_l_rs).cpu())
-    plt.imsave('%s_frame{}.png'.format(idx)%opt.save_prefix, out_img_eccv16)
+    file_name_output = '%s_frame{}.png'.format(idx)%opt.save_prefix
+    plt.imsave(file_name_output, out_img_eccv16)
     os.rename('/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/%s_frame{}.png'.format(idx)%opt.save_prefix,
         '/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/vid_out_result_{}/%s_frame{}.png'
         .format(isolated_video_name, idx)%opt.save_prefix)
-    ml_frame_list.append('%s_frame{}.png'.format(idx)%opt.save_prefix)
+    ml_frame_list.append(file_name_output)
 
 
 os.chdir('/Users/cyndiyag-howard/Documents/Year4Semester1/ECE588/Video-Colorization/vid_out_result_{}'.format(isolated_video_name))
 image_folder = '.'
 output_video_name = 'ml_' + isolated_video_name + '.avi'
-# output_video = cv2.VideoWriter(output_video_name, 0, 1, (255, 255))
+# # output_video = cv2.VideoWriter(output_video_name, 0, 1, (255, 255))
 
-images = [img for img in os.listdir(image_folder) 
-              if img.endswith("png")]
-images.sort()
-frame = cv2.imread(os.path.join(image_folder, images[0])) 
-  
+# images = [img for img in os.listdir(image_folder) 
+#               if img.endswith("png")]
+# natsorted(images)
+frame = cv2.imread(os.path.join(image_folder, ml_frame_list[0])) 
     # setting the frame width, height width 
     # the width, height of first image 
 height, width, layers = frame.shape
-video = cv2.VideoWriter(output_video_name, 0, 30, (width, height))
+video = cv2.VideoWriter(output_video_name, 0, fps, (width, height))
 
-for image in images:
+for image in ml_frame_list:
     print(image)
     video.write(cv2.imread(os.path.join(image_folder, image)))
 
